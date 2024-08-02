@@ -12,5 +12,5 @@ example_files = files(
 )
 
 executable('example', example_files,
-  dependencies : crypto_util_libs
+  dependencies : crypto_utils_deps,
 )
