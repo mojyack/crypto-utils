@@ -49,7 +49,7 @@ auto base64_test(const std::span<const std::byte> data) -> bool {
 }
 
 auto hmac_test(const std::span<const std::byte> data) -> bool {
-    const auto key = to_span("crypto_util_private_key");
+    const auto key = to_span("crypto_utils_private_key");
 
     unwrap_ob(hash, crypto::hmac::compute_hmac_sha256(key, data));
     printf("hmac: ");

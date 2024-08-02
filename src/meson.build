@@ -1,3 +1,3 @@
-crypto_util_libs = [
+crypto_utils_libs = [
   dependency('openssl'),
 ]
