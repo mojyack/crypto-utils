@@ -8,10 +8,7 @@
 namespace crypto::hmac {
 namespace {
 declare_autoptr(MDContext, EVP_MD_CTX, EVP_MD_CTX_free);
-declare_autoptr(MD, EVP_MD, EVP_MD_free);
 declare_autoptr(PKey, EVP_PKEY, EVP_PKEY_free);
-declare_autoptr(MAC, EVP_MAC, EVP_MAC_free);
-declare_autoptr(MACContext, EVP_MAC_CTX, EVP_MAC_CTX_free);
 } // namespace
 
 auto compute_hmac_sha256(const std::span<const std::byte> key, const std::span<const std::byte> data) -> std::optional<std::vector<std::byte>> {
