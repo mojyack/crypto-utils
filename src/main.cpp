@@ -4,12 +4,9 @@
 #include "macros/unwrap.hpp"
 #include "random.hpp"
 #include "sha.hpp"
+#include "util/span.hpp"
 
 namespace {
-auto to_span(std::string_view str) -> std::span<std::byte> {
-    return std::span((std::byte*)str.data(), str.size());
-}
-
 template <class T, class U>
 auto operator==(const std::span<T> a, const std::span<U> b) -> bool {
     if(a.size() != b.size()) {
