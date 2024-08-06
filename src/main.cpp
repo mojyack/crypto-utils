@@ -1,11 +1,9 @@
 #include "aes.hpp"
 #include "base64.hpp"
 #include "hmac.hpp"
+#include "macros/unwrap.hpp"
 #include "random.hpp"
 #include "sha.hpp"
-
-#define CUTIL_NS
-#include "macros/unwrap.hpp"
 #include "util/span.hpp"
 
 namespace {

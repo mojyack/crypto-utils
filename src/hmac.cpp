@@ -2,8 +2,6 @@
 #include <openssl/hmac.h>
 
 #include "hmac.hpp"
-
-#define CUTIL_NS
 #include "macros/assert.hpp"
 #include "macros/autoptr.hpp"
 
