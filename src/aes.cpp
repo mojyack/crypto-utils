@@ -1,8 +1,8 @@
-#include <random>
-
 #include <openssl/evp.h>
 
 #include "aes.hpp"
+
+#define CUTIL_NS
 #include "macros/autoptr.hpp"
 #include "macros/unwrap.hpp"
 
