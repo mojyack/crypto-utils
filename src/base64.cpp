@@ -1,8 +1,9 @@
 #include <cstdint>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include "bytes.hpp"
 
 namespace crypto::base64 {
 namespace {
@@ -31,7 +32,7 @@ auto decode_block(const std::array<char, 4> chars) -> std::array<std::byte, 3> {
 }
 } // namespace
 
-auto encode(const std::span<const std::byte> bytes) -> std::string {
+auto encode(const BytesRef bytes) -> std::string {
     auto r = std::string();
 
     const auto l = bytes.size();

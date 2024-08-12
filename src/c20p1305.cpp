@@ -6,7 +6,7 @@
 namespace crypto::c20p1305 {
 constexpr auto poly1305_tag_len = 16;
 
-auto encrypt(CipherContext* const context, const Key& key, const IV& iv, const std::span<const std::byte> data) -> std::optional<std::vector<std::byte>> {
+auto encrypt(CipherContext* context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<std::vector<std::byte>> {
     const auto ctx = (EVP_CIPHER_CTX*)context;
     assert_o(EVP_EncryptInit(ctx, EVP_chacha20_poly1305(), (unsigned char*)key.data(), (unsigned char*)iv.data()) != 0);
 
@@ -23,7 +23,7 @@ auto encrypt(CipherContext* const context, const Key& key, const IV& iv, const s
     return ret;
 }
 
-auto decrypt(CipherContext* const context, const Key& key, const IV& iv, const std::span<const std::byte> data) -> std::optional<std::vector<std::byte>> {
+auto decrypt(CipherContext* context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<std::vector<std::byte>> {
     assert_o(data.size() > poly1305_tag_len);
 
     const auto ctx = (EVP_CIPHER_CTX*)context;

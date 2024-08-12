@@ -21,17 +21,17 @@ auto operator==(const std::span<T> a, const std::span<U> b) -> bool {
     return true;
 }
 
-auto print_bytes(const std::span<const std::byte> data) -> void {
+auto print_bytes(const crypto::BytesRef data) -> void {
     for(auto b : data) {
         printf("%02X", int(b));
     }
     printf("\n");
 }
 
-auto aes_test(const std::span<const std::byte> data) -> bool {
+auto aes_test(const crypto::BytesRef data) -> bool {
     auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
-    auto iv  = crypto::aes::IV();
-    auto key = std::array<std::byte, crypto::aes::block_size>();
+    auto iv  = std::array<std::byte, crypto::aes::iv_len>();
+    auto key = std::array<std::byte, crypto::aes::block_len>();
     crypto::random::fill_by_random(iv);
     crypto::random::fill_by_random(key);
     unwrap_ob(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
@@ -40,10 +40,10 @@ auto aes_test(const std::span<const std::byte> data) -> bool {
     return true;
 }
 
-auto chacha20_poly1305_test(const std::span<const std::byte> data) -> bool {
+auto chacha20_poly1305_test(const crypto::BytesRef data) -> bool {
     auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
-    auto iv  = crypto::c20p1305::IV();
-    auto key = crypto::c20p1305::Key();
+    auto iv  = std::array<std::byte, crypto::c20p1305::iv_len>();
+    auto key = std::array<std::byte, crypto::c20p1305::key_len>();
     crypto::random::fill_by_random(iv);
     crypto::random::fill_by_random(key);
     unwrap_ob(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, data));
@@ -52,14 +52,14 @@ auto chacha20_poly1305_test(const std::span<const std::byte> data) -> bool {
     return true;
 }
 
-auto base64_test(const std::span<const std::byte> data) -> bool {
+auto base64_test(const crypto::BytesRef data) -> bool {
     const auto enc = crypto::base64::encode(data);
     const auto dec = crypto::base64::decode(enc);
     assert_b(data == std::span(dec));
     return true;
 }
 
-auto hmac_test(const std::span<const std::byte> data) -> bool {
+auto hmac_test(const crypto::BytesRef data) -> bool {
     const auto key = to_span("crypto_utils_private_key");
 
     unwrap_ob(hash, crypto::hmac::compute_hmac_sha256(key, data));
@@ -69,7 +69,7 @@ auto hmac_test(const std::span<const std::byte> data) -> bool {
     return true;
 }
 
-auto sha_test(const std::span<const std::byte> data) -> bool {
+auto sha_test(const crypto::BytesRef data) -> bool {
     const auto sha1 = crypto::sha::calc_sha1(data);
     printf("sha1: ");
     print_bytes(sha1);
