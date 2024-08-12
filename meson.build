@@ -6,6 +6,7 @@ example_files = files(
   'src/main.cpp',
   'src/cipher.cpp',
   'src/aes.cpp',
+  'src/c20p1305.cpp',
   'src/base64.cpp',
   'src/hmac.cpp',
   'src/random.cpp',

@@ -1,5 +1,6 @@
 #include "aes.hpp"
 #include "base64.hpp"
+#include "c20p1305.hpp"
 #include "hmac.hpp"
 #include "macros/unwrap.hpp"
 #include "random.hpp"
@@ -39,6 +40,18 @@ auto aes_test(const std::span<const std::byte> data) -> bool {
     return true;
 }
 
+auto chacha20_poly1305_test(const std::span<const std::byte> data) -> bool {
+    auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
+    auto iv  = crypto::c20p1305::IV();
+    auto key = crypto::c20p1305::Key();
+    crypto::random::fill_by_random(iv);
+    crypto::random::fill_by_random(key);
+    unwrap_ob(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, data));
+    unwrap_ob(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, enc));
+    assert_b(data == std::span(dec));
+    return true;
+}
+
 auto base64_test(const std::span<const std::byte> data) -> bool {
     const auto enc = crypto::base64::encode(data);
     const auto dec = crypto::base64::decode(enc);
@@ -72,6 +85,10 @@ auto run(const char* const arg) -> bool {
 
     print("aes");
     assert_b(aes_test(data));
+    print("ok");
+
+    print("chacha20_poly1305");
+    assert_b(chacha20_poly1305_test(data));
     print("ok");
 
     print("base64");
