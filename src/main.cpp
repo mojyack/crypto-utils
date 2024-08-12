@@ -28,12 +28,13 @@ auto print_bytes(const std::span<const std::byte> data) -> void {
 }
 
 auto aes_test(const std::span<const std::byte> data) -> bool {
+    auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
     auto iv  = crypto::aes::IV();
     auto key = std::array<std::byte, crypto::aes::block_size>();
     crypto::random::fill_by_random(iv);
     crypto::random::fill_by_random(key);
-    unwrap_ob(enc, crypto::aes::encrypt(key, iv, data));
-    unwrap_ob(dec, crypto::aes::decrypt(key, iv, enc));
+    unwrap_ob(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
+    unwrap_ob(dec, crypto::aes::decrypt(ctx.get(), key, iv, enc));
     assert_b(data == std::span(dec));
     return true;
 }

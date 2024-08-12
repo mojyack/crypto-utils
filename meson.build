@@ -4,6 +4,7 @@ subdir('src')
 
 example_files = files(
   'src/main.cpp',
+  'src/cipher.cpp',
   'src/aes.cpp',
   'src/base64.cpp',
   'src/hmac.cpp',
