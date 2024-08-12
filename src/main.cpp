@@ -31,12 +31,15 @@ auto print_bytes(const crypto::BytesRef data) -> void {
 auto engine = RandomEngine();
 
 auto aes_test(const crypto::BytesRef data) -> bool {
-    auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
-    const auto iv  = engine.generate<crypto::aes::iv_len>();
-    const auto key = engine.generate<crypto::aes::block_len>();
-    unwrap_ob(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
-    unwrap_ob(dec, crypto::aes::decrypt(ctx.get(), key, iv, enc));
-    assert_b(data == std::span(dec));
+    auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
+    for(const auto key_len : {16, 24, 32}) {
+        print("key size ", key_len);
+        const auto key = engine.generate(key_len);
+        const auto iv  = engine.generate<crypto::aes::iv_len>();
+        unwrap_ob(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
+        unwrap_ob(dec, crypto::aes::decrypt(ctx.get(), key, iv, enc));
+        assert_b(data == std::span(dec));
+    }
     return true;
 }
 
