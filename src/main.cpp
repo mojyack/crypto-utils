@@ -3,8 +3,8 @@
 #include "c20p1305.hpp"
 #include "hmac.hpp"
 #include "macros/unwrap.hpp"
-#include "random.hpp"
 #include "sha.hpp"
+#include "util/random.hpp"
 #include "util/span.hpp"
 
 namespace {
@@ -28,12 +28,12 @@ auto print_bytes(const crypto::BytesRef data) -> void {
     printf("\n");
 }
 
+auto engine = RandomEngine();
+
 auto aes_test(const crypto::BytesRef data) -> bool {
-    auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
-    auto iv  = std::array<std::byte, crypto::aes::iv_len>();
-    auto key = std::array<std::byte, crypto::aes::block_len>();
-    crypto::random::fill_by_random(iv);
-    crypto::random::fill_by_random(key);
+    auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
+    const auto iv  = engine.generate<crypto::aes::iv_len>();
+    const auto key = engine.generate<crypto::aes::block_len>();
     unwrap_ob(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
     unwrap_ob(dec, crypto::aes::decrypt(ctx.get(), key, iv, enc));
     assert_b(data == std::span(dec));
@@ -41,11 +41,9 @@ auto aes_test(const crypto::BytesRef data) -> bool {
 }
 
 auto chacha20_poly1305_test(const crypto::BytesRef data) -> bool {
-    auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
-    auto iv  = std::array<std::byte, crypto::c20p1305::iv_len>();
-    auto key = std::array<std::byte, crypto::c20p1305::key_len>();
-    crypto::random::fill_by_random(iv);
-    crypto::random::fill_by_random(key);
+    auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
+    const auto iv  = engine.generate<crypto::c20p1305::iv_len>();
+    const auto key = engine.generate<crypto::c20p1305::key_len>();
     unwrap_ob(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, data));
     unwrap_ob(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, enc));
     assert_b(data == std::span(dec));

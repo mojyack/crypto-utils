@@ -9,7 +9,6 @@ example_files = files(
   'src/c20p1305.cpp',
   'src/base64.cpp',
   'src/hmac.cpp',
-  'src/random.cpp',
   'src/sha.cpp',
 )
 
