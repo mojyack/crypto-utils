@@ -36,9 +36,9 @@ auto aes_test(const crypto::BytesRef data) -> bool {
         print("key size ", key_len);
         const auto key = engine.generate(key_len);
         const auto iv  = engine.generate<crypto::aes::iv_len>();
-        unwrap_ob(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
-        unwrap_ob(dec, crypto::aes::decrypt(ctx.get(), key, iv, enc));
-        assert_b(data == std::span(dec));
+        unwrap(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
+        unwrap(dec, crypto::aes::decrypt(ctx.get(), key, iv, enc));
+        ensure(data == std::span(dec));
     }
     return true;
 }
@@ -47,23 +47,23 @@ auto chacha20_poly1305_test(const crypto::BytesRef data) -> bool {
     auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
     const auto iv  = engine.generate<crypto::c20p1305::iv_len>();
     const auto key = engine.generate<crypto::c20p1305::key_len>();
-    unwrap_ob(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, data));
-    unwrap_ob(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, enc));
-    assert_b(data == std::span(dec));
+    unwrap(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, data));
+    unwrap(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, enc));
+    ensure(data == std::span(dec));
     return true;
 }
 
 auto base64_test(const crypto::BytesRef data) -> bool {
     const auto enc = crypto::base64::encode(data);
     const auto dec = crypto::base64::decode(enc);
-    assert_b(data == std::span(dec));
+    ensure(data == std::span(dec));
     return true;
 }
 
 auto hmac_test(const crypto::BytesRef data) -> bool {
     const auto key = to_span("crypto_utils_private_key");
 
-    unwrap_ob(hash, crypto::hmac::compute_hmac_sha256(key, data));
+    unwrap(hash, crypto::hmac::compute_hmac_sha256(key, data));
     printf("hmac: ");
     print_bytes(hash);
 
@@ -85,27 +85,27 @@ auto run(const char* const arg) -> bool {
     const auto data = to_span(arg);
 
     print("aes");
-    assert_b(aes_test(data));
+    ensure(aes_test(data));
     print("ok");
 
     print("chacha20_poly1305");
-    assert_b(chacha20_poly1305_test(data));
+    ensure(chacha20_poly1305_test(data));
     print("ok");
 
     print("base64");
-    assert_b(base64_test(data));
+    ensure(base64_test(data));
     print("ok");
 
     print("base64");
-    assert_b(base64_test(data));
+    ensure(base64_test(data));
     print("ok");
 
     print("hmac");
-    assert_b(hmac_test(data));
+    ensure(hmac_test(data));
     print("ok");
 
     print("sha");
-    assert_b(sha_test(data));
+    ensure(sha_test(data));
     print("ok");
 
     // aes test
