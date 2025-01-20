@@ -36,7 +36,7 @@ auto encode(const BytesRef bytes) -> std::string {
     auto r = std::string();
 
     const auto l = bytes.size();
-    for(auto i = 0u; i + 2 < l; i += 3) {
+    for(auto i = 0uz; i + 2 < l; i += 3) {
         const auto e = encode_block({bytes[i + 0], bytes[i + 1], bytes[i + 2]});
         r += std::string_view(reinterpret_cast<const char*>(&e), 4);
     }
@@ -59,7 +59,7 @@ auto decode(const std::string_view str) -> std::vector<std::byte> {
     auto r = std::vector<std::byte>();
     r.reserve(str.size() * 3 / 4);
 
-    for(auto i = 0u; i < str.size(); i += 4) {
+    for(auto i = 0uz; i < str.size(); i += 4) {
         const auto d = decode_block({str[i + 0], str[i + 1], str[i + 2], str[i + 3]});
         r.push_back(d[0]);
         r.push_back(d[1]);

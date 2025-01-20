@@ -10,22 +10,14 @@
 namespace {
 template <class T, class U>
 auto operator==(const std::span<T> a, const std::span<U> b) -> bool {
-    if(a.size() != b.size()) {
-        return false;
-    }
-    for(auto i = 0u; i < a.size(); i += 1) {
-        if(a[i] != b[i]) {
-            return i;
-        }
-    }
-    return true;
+    return a.size() == b.size() && std::memcmp(a.data(), b.data(), a.size()) == 0;
 }
 
 auto print_bytes(const crypto::BytesRef data) -> void {
     for(auto b : data) {
-        printf("%02X", int(b));
+        std::print("{:X}", int(b));
     }
-    printf("\n");
+    std::println();
 }
 
 auto engine = RandomEngine();
@@ -33,7 +25,7 @@ auto engine = RandomEngine();
 auto aes_test(const crypto::BytesRef data) -> bool {
     auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
     for(const auto key_len : {16, 24, 32}) {
-        print("key size ", key_len);
+        std::println("key size {}", key_len);
         const auto key = engine.generate(key_len);
         const auto iv  = engine.generate<crypto::aes::iv_len>();
         unwrap(enc, crypto::aes::encrypt(ctx.get(), key, iv, data));
@@ -64,7 +56,7 @@ auto hmac_test(const crypto::BytesRef data) -> bool {
     const auto key = to_span("crypto_utils_private_key");
 
     unwrap(hash, crypto::hmac::compute_hmac_sha256(key, data));
-    printf("hmac: ");
+    std::print("hmac: ");
     print_bytes(hash);
 
     return true;
@@ -72,51 +64,40 @@ auto hmac_test(const crypto::BytesRef data) -> bool {
 
 auto sha_test(const crypto::BytesRef data) -> bool {
     const auto sha1 = crypto::sha::calc_sha1(data);
-    printf("sha1: ");
+    std::print("sha1: ");
     print_bytes(sha1);
 
     const auto sha256 = crypto::sha::calc_sha256(data);
-    printf("sha256: ");
+    std::print("sha256: ");
     print_bytes(sha256);
-    return true;
-}
-
-auto run(const char* const arg) -> bool {
-    const auto data = to_span(arg);
-
-    print("aes");
-    ensure(aes_test(data));
-    print("ok");
-
-    print("chacha20_poly1305");
-    ensure(chacha20_poly1305_test(data));
-    print("ok");
-
-    print("base64");
-    ensure(base64_test(data));
-    print("ok");
-
-    print("base64");
-    ensure(base64_test(data));
-    print("ok");
-
-    print("hmac");
-    ensure(hmac_test(data));
-    print("ok");
-
-    print("sha");
-    ensure(sha_test(data));
-    print("ok");
-
-    // aes test
     return true;
 }
 } // namespace
 
 auto main(const int argc, const char* const argv[]) -> int {
-    if(argc != 2) {
-        print("usage: example DATA");
-        return 1;
-    }
-    return run(argv[1]) ? 0 : 1;
+    ensure(argc == 2, "usage: example DATA");
+
+    const auto data = to_span(argv[1]);
+
+    std::println("aes");
+    ensure(aes_test(data));
+    std::println("ok");
+
+    std::println("chacha20_poly1305");
+    ensure(chacha20_poly1305_test(data));
+    std::println("ok");
+
+    std::println("base64");
+    ensure(base64_test(data));
+    std::println("ok");
+
+    std::println("hmac");
+    ensure(hmac_test(data));
+    std::println("ok");
+
+    std::println("sha");
+    ensure(sha_test(data));
+    std::println("ok");
+
+    return 0;
 }
