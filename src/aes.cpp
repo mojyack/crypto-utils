@@ -5,7 +5,7 @@
 
 namespace crypto::aes {
 namespace {
-auto is_valid_key(const std::span<const std::byte> key) -> bool {
+auto is_valid_key(const BytesRef key) -> bool {
     return key.size() == 128 / 8 || key.size() == 192 / 8 || key.size() == 256 / 8;
 }
 
