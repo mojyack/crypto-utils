@@ -1,28 +1,35 @@
-#include <array>
-#include <span>
-
 #include <openssl/evp.h>
+
+#include "macros/autoptr.hpp"
+#include "macros/unwrap.hpp"
+#include "sha.hpp"
 
 namespace crypto::sha {
 namespace {
+declare_autoptr(MDContext, EVP_MD_CTX, EVP_MD_CTX_free);
+
 template <size_t N>
-auto calc_generic(const std::span<const std::byte> data, const char* const algo) -> std::array<std::byte, N> {
+auto calc_generic(const BytesRef data, const char* const algo) -> std::optional<std::array<std::byte, N>> {
+    auto ctx = AutoMDContext(EVP_MD_CTX_new());
+    ensure(ctx.get() != NULL);
+    auto md = EVP_get_digestbyname(algo);
+    ensure(md != NULL);
+
     auto buf = std::array<std::byte, N>();
-    auto md  = EVP_get_digestbyname(algo);
-    auto ctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(ctx, md, NULL);
-    EVP_DigestUpdate(ctx, data.data(), data.size());
-    EVP_DigestFinal_ex(ctx, reinterpret_cast<unsigned char*>(buf.data()), NULL);
-    EVP_MD_CTX_free(ctx);
+    ensure(EVP_DigestInit_ex(ctx.get(), md, NULL) == 1);
+    ensure(EVP_DigestUpdate(ctx.get(), data.data(), data.size()) == 1);
+    ensure(EVP_DigestFinal_ex(ctx.get(), reinterpret_cast<unsigned char*>(buf.data()), NULL) == 1);
     return buf;
 }
 } // namespace
 
-auto calc_sha1(const std::span<const std::byte> data) -> std::array<std::byte, 20> {
-    return calc_generic<20>(data, "SHA1");
+auto calc_sha1(const BytesRef data) -> std::optional<std::array<std::byte, 20>> {
+    unwrap(ret, calc_generic<20>(data, "SHA1"));
+    return ret;
 }
 
-auto calc_sha256(const std::span<const std::byte> data) -> std::array<std::byte, 32> {
-    return calc_generic<32>(data, "SHA256");
+auto calc_sha256(const BytesRef data) -> std::optional<std::array<std::byte, 32>> {
+    unwrap(ret, calc_generic<32>(data, "SHA256"));
+    return ret;
 }
 } // namespace crypto::sha

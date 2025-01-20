@@ -63,11 +63,11 @@ auto hmac_test(const crypto::BytesRef data) -> bool {
 }
 
 auto sha_test(const crypto::BytesRef data) -> bool {
-    const auto sha1 = crypto::sha::calc_sha1(data);
+    unwrap(sha1, crypto::sha::calc_sha1(data));
     std::print("sha1: ");
     print_bytes(sha1);
 
-    const auto sha256 = crypto::sha::calc_sha256(data);
+    unwrap(sha256, crypto::sha::calc_sha256(data));
     std::print("sha256: ");
     print_bytes(sha256);
     return true;
