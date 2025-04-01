@@ -11,6 +11,7 @@ executable('example',
     'src/hmac.cpp',
     'src/main.cpp',
     'src/sha.cpp',
+    'src/x25519.cpp',
   ),
   dependencies : crypto_utils_deps,
 )

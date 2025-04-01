@@ -6,6 +6,7 @@
 #include "sha.hpp"
 #include "util/random.hpp"
 #include "util/span.hpp"
+#include "x25519.hpp"
 
 namespace {
 template <class T, class U>
@@ -72,6 +73,26 @@ auto sha_test(const crypto::BytesRef data) -> bool {
     print_bytes(sha256);
     return true;
 }
+
+auto x25519_test() -> bool {
+    unwrap(pair1, crypto::x25519::generate());
+    std::println("1");
+    std::println("private: {}", crypto::base64::encode(pair1.priv));
+    std::println("public : {}", crypto::base64::encode(pair1.pub));
+    unwrap(pair2, crypto::x25519::generate());
+    std::println("2");
+    std::println("private: {}", crypto::base64::encode(pair2.priv));
+    std::println("public : {}", crypto::base64::encode(pair2.pub));
+
+    unwrap(sec1, crypto::x25519::derive_secret(pair1.priv, pair2.pub));
+    unwrap(sec2, crypto::x25519::derive_secret(pair2.priv, pair1.pub));
+    std::println("result1: {}", crypto::base64::encode(sec1));
+    std::println("result2: {}", crypto::base64::encode(sec2));
+
+    ensure(sec1 == sec2);
+
+    return true;
+}
 } // namespace
 
 auto main(const int argc, const char* const argv[]) -> int {
@@ -97,6 +118,10 @@ auto main(const int argc, const char* const argv[]) -> int {
 
     std::println("sha");
     ensure(sha_test(data));
+    std::println("ok");
+
+    std::println("x25519");
+    ensure(x25519_test());
     std::println("ok");
 
     return 0;
