@@ -4,11 +4,11 @@
 #include "macros/assert.hpp"
 
 namespace crypto::c20p1305 {
-auto encrypt(CipherContext* context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<std::vector<std::byte>> {
+auto encrypt(CipherContext* context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<BytesArray> {
     const auto ctx = (EVP_CIPHER_CTX*)context;
     ensure(EVP_EncryptInit(ctx, EVP_chacha20_poly1305(), (unsigned char*)key.data(), (unsigned char*)iv.data()) != 0);
 
-    auto       ret      = std::vector<std::byte>(data.size() + tag_len);
+    auto       ret      = BytesArray(data.size() + tag_len);
     const auto tag_head = (unsigned char*)ret.data();
     const auto enc_head = (unsigned char*)ret.data() + +tag_len;
 
@@ -21,7 +21,7 @@ auto encrypt(CipherContext* context, const BytesRef key, const BytesRef iv, cons
     return ret;
 }
 
-auto decrypt(CipherContext* context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<std::vector<std::byte>> {
+auto decrypt(CipherContext* context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<BytesArray> {
     ensure(data.size() > tag_len);
 
     const auto ctx = (EVP_CIPHER_CTX*)context;
@@ -31,7 +31,7 @@ auto decrypt(CipherContext* context, const BytesRef key, const BytesRef iv, cons
     const auto enc_head = (unsigned char*)data.data() + tag_len;
     const auto enc_len  = data.size() - tag_len;
 
-    auto ret        = std::vector<std::byte>(data.size() - tag_len);
+    auto ret        = BytesArray(data.size() - tag_len);
     auto body_len   = 0;
     auto remain_len = 0;
     ensure(EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG, tag_len, tag_head) != 0);

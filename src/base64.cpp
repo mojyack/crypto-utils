@@ -55,8 +55,8 @@ auto encode(const BytesRef bytes) -> std::string {
     return r;
 }
 
-auto decode(const std::string_view str) -> std::vector<std::byte> {
-    auto r = std::vector<std::byte>();
+auto decode(const std::string_view str) -> BytesArray {
+    auto r = BytesArray();
     r.reserve(str.size() * 3 / 4);
 
     for(auto i = 0uz; i < str.size(); i += 4) {

@@ -1,6 +1,8 @@
 #pragma once
 #include <span>
+#include <vector>
 
 namespace crypto {
-using BytesRef = std::span<const std::byte>;
-}
+using BytesArray = std::vector<std::byte>;
+using BytesRef   = std::span<const std::byte>;
+} // namespace crypto
