@@ -4,7 +4,7 @@
 #include "macros/assert.hpp"
 
 namespace crypto::c20p1305 {
-auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const BytesRef dest) -> bool {
+auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> bool {
     const auto ctx = (EVP_CIPHER_CTX*)context;
     ensure(EVP_EncryptInit(ctx, EVP_chacha20_poly1305(), (unsigned char*)key.data(), (unsigned char*)iv.data()) != 0);
 
@@ -26,7 +26,7 @@ auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv
     return ret;
 }
 
-auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const BytesRef dest) -> bool {
+auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> bool {
     ensure(data.size() > tag_len);
 
     const auto ctx = (EVP_CIPHER_CTX*)context;

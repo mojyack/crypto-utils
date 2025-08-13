@@ -23,7 +23,7 @@ auto cipher_suite_from_key_size(const size_t size) -> const EVP_CIPHER* {
 }
 } // namespace
 
-auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const BytesRef dest) -> bool {
+auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> bool {
     ensure(is_valid_key(key));
 
     const auto ctx = (EVP_CIPHER_CTX*)context;
@@ -42,7 +42,7 @@ auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv
     return ret;
 }
 
-auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const BytesRef dest) -> std::optional<size_t> {
+auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> std::optional<size_t> {
     ensure(is_valid_key(key));
 
     const auto ctx = (EVP_CIPHER_CTX*)context;

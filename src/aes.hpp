@@ -18,8 +18,8 @@ inline auto calc_decryption_buffer_size(size_t data_size) -> size_t {
     return data_size;
 }
 
-auto encrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data, BytesRef dest) -> bool;
+auto encrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data, MutBytesRef dest) -> bool;
 auto encrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data) -> std::optional<BytesArray>;
-auto decrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data, BytesRef dest) -> std::optional<size_t>;
+auto decrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data, MutBytesRef dest) -> std::optional<size_t>;
 auto decrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data) -> std::optional<BytesArray>;
 } // namespace crypto::aes
