@@ -14,11 +14,11 @@ declare_autoptr(PKeyContext, EVP_PKEY_CTX, EVP_PKEY_CTX_free);
 declare_autoptr(BigNum, BIGNUM, BN_free);
 declare_autoptr(PKey, EVP_PKEY, EVP_PKEY_free);
 
-auto read_sized_array(std::function<int(unsigned char*, size_t*)> func) -> std::optional<BytesArray> {
+auto read_sized_array(std::function<int(unsigned char*, size_t*)> func) -> std::optional<PrependableBuffer> {
     auto len = 0uz;
     ensure(func(NULL, &len));
-    auto ret = BytesArray(len);
-    ensure(func((unsigned char*)ret.data(), &len));
+    auto ret = PrependableBuffer();
+    ensure(func((unsigned char*)ret.enlarge(len).data(), &len));
     return ret;
 }
 } // namespace
@@ -35,7 +35,7 @@ auto generate() -> std::optional<KeyPair> {
     return KeyPair{std::move(raw_priv), std::move(raw_pub)};
 }
 
-auto derive_secret(const BytesRef raw_priv, const BytesRef raw_pub) -> std::optional<BytesArray> {
+auto derive_secret(const BytesRef raw_priv, const BytesRef raw_pub) -> std::optional<PrependableBuffer> {
     auto priv = AutoPKey(EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL, (unsigned char*)raw_priv.data(), raw_priv.size()));
     ensure(priv.get() != NULL);
     auto pub = AutoPKey(EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL, (unsigned char*)raw_pub.data(), raw_pub.size()));

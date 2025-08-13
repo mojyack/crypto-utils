@@ -77,19 +77,19 @@ auto sha_test(const crypto::BytesRef data) -> bool {
 auto x25519_test() -> bool {
     unwrap(pair1, crypto::x25519::generate());
     std::println("1");
-    std::println("private: {}", crypto::base64::encode(pair1.priv));
-    std::println("public : {}", crypto::base64::encode(pair1.pub));
+    std::println("private: {}", crypto::base64::encode(pair1.priv.body()));
+    std::println("public : {}", crypto::base64::encode(pair1.pub.body()));
     unwrap(pair2, crypto::x25519::generate());
     std::println("2");
-    std::println("private: {}", crypto::base64::encode(pair2.priv));
-    std::println("public : {}", crypto::base64::encode(pair2.pub));
+    std::println("private: {}", crypto::base64::encode(pair2.priv.body()));
+    std::println("public : {}", crypto::base64::encode(pair2.pub.body()));
 
-    unwrap(sec1, crypto::x25519::derive_secret(pair1.priv, pair2.pub));
-    unwrap(sec2, crypto::x25519::derive_secret(pair2.priv, pair1.pub));
-    std::println("result1: {}", crypto::base64::encode(sec1));
-    std::println("result2: {}", crypto::base64::encode(sec2));
+    unwrap(sec1, crypto::x25519::derive_secret(pair1.priv.body(), pair2.pub.body()));
+    unwrap(sec2, crypto::x25519::derive_secret(pair2.priv.body(), pair1.pub.body()));
+    std::println("result1: {}", crypto::base64::encode(sec1.body()));
+    std::println("result2: {}", crypto::base64::encode(sec2.body()));
 
-    ensure(sec1 == sec2);
+    ensure(sec1.body() == sec2.body());
 
     return true;
 }
