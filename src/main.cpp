@@ -48,8 +48,14 @@ auto chacha20_poly1305_test(const crypto::BytesRef data) -> bool {
 
 auto base64_test(const crypto::BytesRef data) -> bool {
     const auto enc = crypto::base64::encode(data);
-    const auto dec = crypto::base64::decode(enc);
+    unwrap(dec, crypto::base64::decode(enc));
     ensure(data == std::span(dec));
+
+    // invalid length
+    ensure(!crypto::base64::decode("abcd123"));
+    // invalid character
+    ensure(!crypto::base64::decode("abcd!23="));
+
     return true;
 }
 
@@ -124,5 +130,6 @@ auto main(const int argc, const char* const argv[]) -> int {
     ensure(x25519_test());
     std::println("ok");
 
+    std::println("pass");
     return 0;
 }
