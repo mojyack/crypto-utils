@@ -35,7 +35,7 @@ auto generate() -> std::optional<KeyPair> {
     return KeyPair{std::move(raw_priv), std::move(raw_pub)};
 }
 
-auto derive_secret(const BytesRef raw_priv, const MutBytesRef raw_pub) -> std::optional<PrependableBuffer> {
+auto derive_secret(const BytesRef raw_priv, const BytesRef raw_pub) -> std::optional<PrependableBuffer> {
     auto priv = AutoPKey(EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL, (unsigned char*)raw_priv.data(), raw_priv.size()));
     ensure(priv.get() != NULL);
     auto pub = AutoPKey(EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL, (unsigned char*)raw_pub.data(), raw_pub.size()));

@@ -11,5 +11,5 @@ struct KeyPair {
 };
 
 auto generate() -> std::optional<KeyPair>;
-auto derive_secret(BytesRef raw_priv, MutBytesRef raw_pub) -> std::optional<PrependableBuffer>;
+auto derive_secret(BytesRef raw_priv, BytesRef raw_pub) -> std::optional<PrependableBuffer>;
 } // namespace crypto::x25519
