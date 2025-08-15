@@ -18,13 +18,13 @@ const auto encode_table = std::string_view(
 constexpr auto generate_decode_table() -> std::array<uint8_t, 0xff> {
     auto ret = std::array<uint8_t, 0xff>();
     std::ranges::fill(ret, 0xff);
-    for(auto i = 'A'; i < 'Z'; i += 1) {
+    for(auto i = 'A'; i <= 'Z'; i += 1) {
         ret[i] = i - 'A';
     }
-    for(auto i = 'a'; i < 'z'; i += 1) {
+    for(auto i = 'a'; i <= 'z'; i += 1) {
         ret[i] = 26 + i - 'a';
     }
-    for(auto i = '0'; i < '9'; i += 1) {
+    for(auto i = '0'; i <= '9'; i += 1) {
         ret[i] = 52 + i - '0';
     }
     ret['+'] = 62;
@@ -47,7 +47,7 @@ auto decode_block(const std::array<char, 4> chars) -> std::optional<std::array<s
     auto bytes = std::array<uint8_t, 4>();
     for(auto i = 0; i < 4; i += 1) {
         bytes[i] = decode_table[chars[i]];
-        ensure(bytes[i] != 0xff);
+        ensure(bytes[i] != 0xff, "invalid character '{}'", chars[i]);
     }
     const auto a = std::byte((bytes[0] << 2) + ((bytes[1] & 0x30) >> 4));
     const auto b = std::byte(((bytes[1] & 0xf) << 4) + ((bytes[2] & 0x3c) >> 2));

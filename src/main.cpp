@@ -131,5 +131,6 @@ auto main(const int argc, const char* const argv[]) -> int {
     std::println("ok");
 
     std::println("pass");
+
     return 0;
 }
