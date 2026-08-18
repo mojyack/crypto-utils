@@ -17,8 +17,8 @@ inline auto calc_decryption_buffer_size(const size_t data_size) -> size_t {
     return data_size - tag_len;
 }
 
-auto encrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan data, BytesMutSpan dest) -> bool;
-auto encrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan data) -> std::optional<BytesVec>;
-auto decrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan data, BytesMutSpan dest) -> bool;
-auto decrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan data) -> std::optional<BytesVec>;
+auto encrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan aad, BytesSpan data, BytesMutSpan dest) -> bool;
+auto encrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan aad, BytesSpan data) -> std::optional<BytesVec>;
+auto decrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan aad, BytesSpan data, BytesMutSpan dest) -> bool;
+auto decrypt(CipherContext* context, BytesRef<key_len> key, BytesRef<iv_len> iv, BytesSpan aad, BytesSpan data) -> std::optional<BytesVec>;
 } // namespace crypto::c20p1305

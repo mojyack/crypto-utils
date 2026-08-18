@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "aes.hpp"
 #include "base64.hpp"
 #include "c20p1305.hpp"
@@ -40,9 +42,17 @@ auto chacha20_poly1305_test(const BytesSpan data) -> bool {
     auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
     const auto iv  = engine.generate<crypto::c20p1305::iv_len>();
     const auto key = engine.generate<crypto::c20p1305::key_len>();
-    unwrap(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, data));
-    unwrap(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, enc));
+    const auto aad = to_span("authenticated header");
+    unwrap(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, aad, data));
+    unwrap(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, aad, enc));
     ensure(data == std::span(dec));
+
+    unwrap(tag, crypto::c20p1305::encrypt(ctx.get(), key, iv, aad, BytesSpan{}));
+    ensure(tag.size() == crypto::c20p1305::tag_len);
+    unwrap(empty, crypto::c20p1305::decrypt(ctx.get(), key, iv, aad, tag));
+    ensure(empty.empty());
+    ensure(!crypto::c20p1305::decrypt(ctx.get(), key, iv, to_span("modified header"), tag));
+    ensure(!crypto::c20p1305::decrypt(ctx.get(), key, iv, aad, BytesSpan{}));
     return true;
 }
 
