@@ -14,11 +14,13 @@ declare_autoptr(PKeyContext, EVP_PKEY_CTX, EVP_PKEY_CTX_free);
 declare_autoptr(BigNum, BIGNUM, BN_free);
 declare_autoptr(PKey, EVP_PKEY, EVP_PKEY_free);
 
-auto read_sized_array(std::function<int(unsigned char*, size_t*)> func) -> std::optional<PrependableBuffer> {
+template <size_t N>
+auto read_array(std::function<int(unsigned char*, size_t*)> func) -> std::optional<BytesArray<N>> {
     auto len = 0uz;
     ensure(func(NULL, &len));
-    auto ret = PrependableBuffer();
-    ensure(func((unsigned char*)ret.enlarge(len).data(), &len));
+    ensure(len == N);
+    auto ret = BytesArray<N>();
+    ensure(func((unsigned char*)ret.data(), &len));
     return ret;
 }
 } // namespace
@@ -30,12 +32,12 @@ auto generate() -> std::optional<KeyPair> {
 
     auto pkey = AutoPKey();
     ensure(EVP_PKEY_keygen(ctx.get(), std::inout_ptr(pkey)) > 0);
-    unwrap_mut(raw_priv, read_sized_array(std::bind(EVP_PKEY_get_raw_private_key, pkey.get(), std::placeholders::_1, std::placeholders::_2)));
-    unwrap_mut(raw_pub, read_sized_array(std::bind(EVP_PKEY_get_raw_public_key, pkey.get(), std::placeholders::_1, std::placeholders::_2)));
+    unwrap_mut(raw_priv, read_array<key_len>(std::bind(EVP_PKEY_get_raw_private_key, pkey.get(), std::placeholders::_1, std::placeholders::_2)));
+    unwrap_mut(raw_pub, read_array<key_len>(std::bind(EVP_PKEY_get_raw_public_key, pkey.get(), std::placeholders::_1, std::placeholders::_2)));
     return KeyPair{std::move(raw_priv), std::move(raw_pub)};
 }
 
-auto derive_secret(const BytesRef raw_priv, const BytesRef raw_pub) -> std::optional<PrependableBuffer> {
+auto derive_secret(const BytesRef<key_len> raw_priv, const BytesRef<key_len> raw_pub) -> std::optional<BytesArray<key_len>> {
     auto priv = AutoPKey(EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL, (unsigned char*)raw_priv.data(), raw_priv.size()));
     ensure(priv.get() != NULL);
     auto pub = AutoPKey(EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL, (unsigned char*)raw_pub.data(), raw_pub.size()));
@@ -46,7 +48,7 @@ auto derive_secret(const BytesRef raw_priv, const BytesRef raw_pub) -> std::opti
 
     ensure(EVP_PKEY_derive_init(ctx.get()) > 0);
     ensure(EVP_PKEY_derive_set_peer(ctx.get(), pub.get()));
-    unwrap_mut(ret, read_sized_array(std::bind(EVP_PKEY_derive, ctx.get(), std::placeholders::_1, std::placeholders::_2)));
+    unwrap_mut(ret, read_array<key_len>(std::bind(EVP_PKEY_derive, ctx.get(), std::placeholders::_1, std::placeholders::_2)));
     return ret;
 }
 } // namespace crypto::x25519

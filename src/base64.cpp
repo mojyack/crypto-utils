@@ -4,7 +4,6 @@
 #include <string_view>
 
 #include "base64.hpp"
-#include "bytes.hpp"
 #include "macros/unwrap.hpp"
 
 namespace crypto::base64 {
@@ -56,7 +55,7 @@ auto decode_block(const std::array<char, 4> chars) -> std::optional<std::array<s
 }
 } // namespace
 
-auto encode(const BytesRef bytes) -> std::string {
+auto encode(const BytesSpan bytes) -> std::string {
     auto r = std::string();
 
     const auto l = bytes.size();
@@ -79,7 +78,7 @@ auto encode(const BytesRef bytes) -> std::string {
     return r;
 }
 
-auto decode(const std::string_view str, MutBytesRef dest) -> std::optional<size_t> {
+auto decode(const std::string_view str, BytesMutSpan dest) -> std::optional<size_t> {
     for(auto i = 0uz; i < str.size(); i += 4) {
         unwrap(d, decode_block({str[i + 0], str[i + 1], str[i + 2], str[i + 3]}), "invalid character found around {}", i);
         dest[i / 4 * 3 + 0] = d[0];
@@ -92,9 +91,9 @@ auto decode(const std::string_view str, MutBytesRef dest) -> std::optional<size_
     return ret;
 }
 
-auto decode(const std::string_view str) -> std::optional<BytesArray> {
+auto decode(const std::string_view str) -> std::optional<BytesVec> {
     unwrap(size, calc_decode_buffer_size(str.size()));
-    auto dest = BytesArray(size);
+    auto dest = BytesVec(size);
     unwrap(real_size, decode(str, dest));
     dest.resize(real_size);
     return dest;

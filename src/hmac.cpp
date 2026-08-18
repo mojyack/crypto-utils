@@ -11,7 +11,7 @@ declare_autoptr(MDContext, EVP_MD_CTX, EVP_MD_CTX_free);
 declare_autoptr(PKey, EVP_PKEY, EVP_PKEY_free);
 } // namespace
 
-auto compute_hmac_sha256(const BytesRef key, const BytesRef data) -> std::optional<std::array<std::byte, 32>> {
+auto compute_hmac_sha256(const BytesSpan key, const BytesSpan data) -> std::optional<std::array<std::byte, 32>> {
     auto mdctx = AutoMDContext(EVP_MD_CTX_new());
     ensure(mdctx.get() != NULL);
     auto md = EVP_get_digestbyname("SHA256");

@@ -5,7 +5,7 @@
 
 namespace crypto::aes {
 namespace {
-auto is_valid_key(const BytesRef key) -> bool {
+auto is_valid_key(const BytesSpan key) -> bool {
     return key.size() == 128 / 8 || key.size() == 192 / 8 || key.size() == 256 / 8;
 }
 
@@ -23,7 +23,7 @@ auto cipher_suite_from_key_size(const size_t size) -> const EVP_CIPHER* {
 }
 } // namespace
 
-auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> bool {
+auto encrypt(CipherContext* const context, const BytesSpan key, const BytesRef<iv_len> iv, const BytesSpan data, const BytesMutSpan dest) -> bool {
     ensure(is_valid_key(key));
 
     const auto ctx = (EVP_CIPHER_CTX*)context;
@@ -36,13 +36,13 @@ auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv
     return true;
 }
 
-auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<BytesArray> {
-    auto ret = BytesArray(calc_encryption_buffer_size(data.size()));
+auto encrypt(CipherContext* const context, const BytesSpan key, const BytesRef<iv_len> iv, const BytesSpan data) -> std::optional<BytesVec> {
+    auto ret = BytesVec(calc_encryption_buffer_size(data.size()));
     ensure(encrypt(context, key, iv, data, ret));
     return ret;
 }
 
-auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> std::optional<size_t> {
+auto decrypt(CipherContext* const context, const BytesSpan key, const BytesRef<iv_len> iv, const BytesSpan data, const BytesMutSpan dest) -> std::optional<size_t> {
     ensure(is_valid_key(key));
 
     const auto ctx = (EVP_CIPHER_CTX*)context;
@@ -56,8 +56,8 @@ auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv
     return body_len + remain_len;
 }
 
-auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<BytesArray> {
-    auto ret = BytesArray(calc_decryption_buffer_size(data.size()));
+auto decrypt(CipherContext* const context, const BytesSpan key, const BytesRef<iv_len> iv, const BytesSpan data) -> std::optional<BytesVec> {
+    auto ret = BytesVec(calc_decryption_buffer_size(data.size()));
     unwrap(size, decrypt(context, key, iv, data, ret));
     ret.resize(size);
     return ret;

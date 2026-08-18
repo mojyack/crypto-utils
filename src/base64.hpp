@@ -1,7 +1,7 @@
 #include <optional>
 #include <string_view>
 
-#include "bytes.hpp"
+#include "util/bytes.hpp"
 
 namespace crypto::base64 {
 inline auto calc_decode_buffer_size(size_t str_len) -> std::optional<size_t> {
@@ -13,7 +13,7 @@ inline auto calc_decode_buffer_size(size_t str_len) -> std::optional<size_t> {
     }
 }
 
-auto encode(BytesRef bytes) -> std::string;
-auto decode(const std::string_view str, MutBytesRef dest) -> std::optional<size_t>;
-auto decode(const std::string_view str) -> std::optional<BytesArray>;
+auto encode(BytesSpan bytes) -> std::string;
+auto decode(const std::string_view str, BytesMutSpan dest) -> std::optional<size_t>;
+auto decode(const std::string_view str) -> std::optional<BytesVec>;
 } // namespace crypto::base64

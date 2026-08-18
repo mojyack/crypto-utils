@@ -4,7 +4,7 @@
 #include "macros/assert.hpp"
 
 namespace crypto::c20p1305 {
-auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> bool {
+auto encrypt(CipherContext* const context, const BytesRef<key_len> key, const BytesRef<iv_len> iv, const BytesSpan data, const BytesMutSpan dest) -> bool {
     const auto ctx = (EVP_CIPHER_CTX*)context;
     ensure(EVP_EncryptInit(ctx, EVP_chacha20_poly1305(), (unsigned char*)key.data(), (unsigned char*)iv.data()) != 0);
 
@@ -20,13 +20,13 @@ auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv
     return true;
 }
 
-auto encrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<BytesArray> {
-    auto ret = BytesArray(calc_encryption_buffer_size(data.size()));
+auto encrypt(CipherContext* const context, const BytesRef<key_len> key, const BytesRef<iv_len> iv, const BytesSpan data) -> std::optional<BytesVec> {
+    auto ret = BytesVec(calc_encryption_buffer_size(data.size()));
     ensure(encrypt(context, key, iv, data, ret));
     return ret;
 }
 
-auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data, const MutBytesRef dest) -> bool {
+auto decrypt(CipherContext* const context, const BytesRef<key_len> key, const BytesRef<iv_len> iv, const BytesSpan data, const BytesMutSpan dest) -> bool {
     ensure(data.size() > tag_len);
 
     const auto ctx = (EVP_CIPHER_CTX*)context;
@@ -45,8 +45,8 @@ auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv
     return true;
 }
 
-auto decrypt(CipherContext* const context, const BytesRef key, const BytesRef iv, const BytesRef data) -> std::optional<BytesArray> {
-    auto ret = BytesArray(calc_decryption_buffer_size(data.size()));
+auto decrypt(CipherContext* const context, const BytesRef<key_len> key, const BytesRef<iv_len> iv, const BytesSpan data) -> std::optional<BytesVec> {
+    auto ret = BytesVec(calc_decryption_buffer_size(data.size()));
     ensure(decrypt(context, key, iv, data, ret));
     return ret;
 }

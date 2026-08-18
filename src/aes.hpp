@@ -1,8 +1,8 @@
 #pragma once
 #include <optional>
 
-#include "bytes.hpp"
 #include "cipher.hpp"
+#include "util/bytes.hpp"
 
 namespace crypto::aes {
 constexpr auto iv_len    = 16;
@@ -18,8 +18,8 @@ inline auto calc_decryption_buffer_size(size_t data_size) -> size_t {
     return data_size;
 }
 
-auto encrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data, MutBytesRef dest) -> bool;
-auto encrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data) -> std::optional<BytesArray>;
-auto decrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data, MutBytesRef dest) -> std::optional<size_t>;
-auto decrypt(CipherContext* context, BytesRef key, BytesRef iv, BytesRef data) -> std::optional<BytesArray>;
+auto encrypt(CipherContext* context, BytesSpan key, BytesRef<iv_len> iv, BytesSpan data, BytesMutSpan dest) -> bool;
+auto encrypt(CipherContext* context, BytesSpan key, BytesRef<iv_len> iv, BytesSpan data) -> std::optional<BytesVec>;
+auto decrypt(CipherContext* context, BytesSpan key, BytesRef<iv_len> iv, BytesSpan data, BytesMutSpan dest) -> std::optional<size_t>;
+auto decrypt(CipherContext* context, BytesSpan key, BytesRef<iv_len> iv, BytesSpan data) -> std::optional<BytesVec>;
 } // namespace crypto::aes

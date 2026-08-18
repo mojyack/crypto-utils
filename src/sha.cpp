@@ -9,7 +9,7 @@ namespace {
 declare_autoptr(MDContext, EVP_MD_CTX, EVP_MD_CTX_free);
 
 template <size_t N>
-auto calc_generic(const BytesRef data, const char* const algo) -> std::optional<std::array<std::byte, N>> {
+auto calc_generic(const BytesSpan data, const char* const algo) -> std::optional<BytesArray<N>> {
     auto ctx = AutoMDContext(EVP_MD_CTX_new());
     ensure(ctx.get() != NULL);
     auto md = EVP_get_digestbyname(algo);
@@ -23,12 +23,12 @@ auto calc_generic(const BytesRef data, const char* const algo) -> std::optional<
 }
 } // namespace
 
-auto calc_sha1(const BytesRef data) -> std::optional<std::array<std::byte, 20>> {
+auto calc_sha1(const BytesSpan data) -> std::optional<BytesArray<20>> {
     unwrap(ret, calc_generic<20>(data, "SHA1"));
     return ret;
 }
 
-auto calc_sha256(const BytesRef data) -> std::optional<std::array<std::byte, 32>> {
+auto calc_sha256(const BytesSpan data) -> std::optional<BytesArray<32>> {
     unwrap(ret, calc_generic<32>(data, "SHA256"));
     return ret;
 }

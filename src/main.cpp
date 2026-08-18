@@ -14,7 +14,7 @@ auto operator==(const std::span<T> a, const std::span<U> b) -> bool {
     return a.size() == b.size() && std::memcmp(a.data(), b.data(), a.size()) == 0;
 }
 
-auto print_bytes(const crypto::BytesRef data) -> void {
+auto print_bytes(const BytesSpan data) -> void {
     for(auto b : data) {
         std::print("{:X}", int(b));
     }
@@ -23,7 +23,7 @@ auto print_bytes(const crypto::BytesRef data) -> void {
 
 auto engine = RandomEngine();
 
-auto aes_test(const crypto::BytesRef data) -> bool {
+auto aes_test(const BytesSpan data) -> bool {
     auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
     for(const auto key_len : {16, 24, 32}) {
         std::println("key size {}", key_len);
@@ -36,7 +36,7 @@ auto aes_test(const crypto::BytesRef data) -> bool {
     return true;
 }
 
-auto chacha20_poly1305_test(const crypto::BytesRef data) -> bool {
+auto chacha20_poly1305_test(const BytesSpan data) -> bool {
     auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
     const auto iv  = engine.generate<crypto::c20p1305::iv_len>();
     const auto key = engine.generate<crypto::c20p1305::key_len>();
@@ -46,7 +46,7 @@ auto chacha20_poly1305_test(const crypto::BytesRef data) -> bool {
     return true;
 }
 
-auto base64_test(const crypto::BytesRef data) -> bool {
+auto base64_test(const BytesSpan data) -> bool {
     const auto enc = crypto::base64::encode(data);
     unwrap(dec, crypto::base64::decode(enc));
     ensure(data == std::span(dec));
@@ -59,7 +59,7 @@ auto base64_test(const crypto::BytesRef data) -> bool {
     return true;
 }
 
-auto hmac_test(const crypto::BytesRef data) -> bool {
+auto hmac_test(const BytesSpan data) -> bool {
     const auto key = to_span("crypto_utils_private_key");
 
     unwrap(hash, crypto::hmac::compute_hmac_sha256(key, data));
@@ -69,7 +69,7 @@ auto hmac_test(const crypto::BytesRef data) -> bool {
     return true;
 }
 
-auto sha_test(const crypto::BytesRef data) -> bool {
+auto sha_test(const BytesSpan data) -> bool {
     unwrap(sha1, crypto::sha::calc_sha1(data));
     std::print("sha1: ");
     print_bytes(sha1);
@@ -83,19 +83,19 @@ auto sha_test(const crypto::BytesRef data) -> bool {
 auto x25519_test() -> bool {
     unwrap(pair1, crypto::x25519::generate());
     std::println("1");
-    std::println("private: {}", crypto::base64::encode(pair1.priv.body()));
-    std::println("public : {}", crypto::base64::encode(pair1.pub.body()));
+    std::println("private: {}", crypto::base64::encode(pair1.priv));
+    std::println("public : {}", crypto::base64::encode(pair1.pub));
     unwrap(pair2, crypto::x25519::generate());
     std::println("2");
-    std::println("private: {}", crypto::base64::encode(pair2.priv.body()));
-    std::println("public : {}", crypto::base64::encode(pair2.pub.body()));
+    std::println("private: {}", crypto::base64::encode(pair2.priv));
+    std::println("public : {}", crypto::base64::encode(pair2.pub));
 
-    unwrap(sec1, crypto::x25519::derive_secret(pair1.priv.body(), pair2.pub.body()));
-    unwrap(sec2, crypto::x25519::derive_secret(pair2.priv.body(), pair1.pub.body()));
-    std::println("result1: {}", crypto::base64::encode(sec1.body()));
-    std::println("result2: {}", crypto::base64::encode(sec2.body()));
+    unwrap(sec1, crypto::x25519::derive_secret(pair1.priv, pair2.pub));
+    unwrap(sec2, crypto::x25519::derive_secret(pair2.priv, pair1.pub));
+    std::println("result1: {}", crypto::base64::encode(sec1));
+    std::println("result2: {}", crypto::base64::encode(sec2));
 
-    ensure(sec1.body() == sec2.body());
+    ensure(sec1 == sec2);
 
     return true;
 }
