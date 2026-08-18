@@ -101,10 +101,8 @@ auto x25519_test() -> bool {
 }
 } // namespace
 
-auto main(const int argc, const char* const argv[]) -> int {
-    ensure(argc == 2, "usage: example DATA");
-
-    const auto data = to_span(argv[1]);
+auto main() -> int {
+    const auto data = to_span("crypto-utils");
 
     std::println("aes");
     ensure(aes_test(data));
