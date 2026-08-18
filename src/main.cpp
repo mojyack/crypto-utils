@@ -39,9 +39,11 @@ auto aes_test(const BytesSpan data) -> bool {
 }
 
 auto chacha20_poly1305_test(const BytesSpan data) -> bool {
-    auto       ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
-    const auto iv  = engine.generate<crypto::c20p1305::iv_len>();
-    const auto key = engine.generate<crypto::c20p1305::key_len>();
+    auto ctx = crypto::AutoCipherContext(crypto::alloc_cipher_context());
+    auto iv  = BytesArray<crypto::c20p1305::iv_len>();
+    auto key = BytesArray<crypto::c20p1305::key_len>();
+    engine.random_fill(iv);
+    engine.random_fill(key);
     const auto aad = to_span("authenticated header");
     unwrap(enc, crypto::c20p1305::encrypt(ctx.get(), key, iv, aad, data));
     unwrap(dec, crypto::c20p1305::decrypt(ctx.get(), key, iv, aad, enc));

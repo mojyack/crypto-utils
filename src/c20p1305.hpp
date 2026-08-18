@@ -5,7 +5,7 @@
 #include "util/bytes.hpp"
 
 namespace crypto::c20p1305 {
-constexpr auto iv_len  = 16;
+constexpr auto iv_len  = 12;
 constexpr auto key_len = 32;
 constexpr auto tag_len = 16;
 
